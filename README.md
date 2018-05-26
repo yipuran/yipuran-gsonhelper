@@ -7,6 +7,7 @@ https://github.com/google/gson
 
 ## Document
 Extract doc/yipuran-gsonhelper-doc.zip and see the Javadoc
+or [Wiki Page](../../wiki)
 
 ## Setup pom.xml
 ```
