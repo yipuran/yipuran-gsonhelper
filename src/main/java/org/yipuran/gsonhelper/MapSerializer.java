@@ -17,16 +17,16 @@ import com.google.gson.JsonSerializer;
  *
  *   更に、、toJson は、java.lang.reflect.Type を、com.google.gson.reflect.TypeToken の getType で以下のように指定する。
  *
- *       toJson(map, new TypeToken<Map<String, Object>>(){}.getType()));
+ *       toJson(map, new TypeToken&lt;Map&lt;String, Object&gt;&gt;(){}.getType()));
  *
  *  使用例：
  *      Map<String, Object> map = new HashMap<>();
  *
  *      Gson gson = new GsonBuilder()
- *        .registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(), new MapSerializer())
+ *        .registerTypeAdapter(new TypeToken&lt;Map&lt;String, Object&gt;&gt;(){}.getType(), new MapSerializer())
  *        .create();
  *
- *      String s = gson.toJson(map, new TypeToken<Map<String, Object>>(){}.getType());
+ *      String s = gson.toJson(map, new TypeToken&lt;Map&lt;String, Object&gt;&gt;(){}.getType());
  *
  * </PRE>
  */

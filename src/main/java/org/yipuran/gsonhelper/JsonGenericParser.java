@@ -18,10 +18,13 @@ import com.google.gson.JsonPrimitive;
  * <PRE>
  * JSONキー、ツリー構造のPATHで Mapへの変換または検索を実行する為のクラス
  * ツリー構造のPATHは、"." 区切りでキーのPATHを指定する。配列要素は、[] で指定し n 番目は [n-1]である。
- * 数値解釈のデフォルトは、Integer である。Integer 以外で解釈させる場合は provide() でインスタンス生成時に
+ * 統一した数値解釈はコンストラクタでは指定できない。統一で解釈させる場合は provide() でインスタンス生成時に
  * 指定する。
  *      JsonGenericParser parser = JsonGenericParser.provide(NumberParse.DOUBLE);
- * 数値解釈は、個別の指定はできない。
+ * provide() を使用しない通常のコンストラクタで指定した場合は、数値型は、JsonPrimitive型として取得されるので、
+ * Gson の getAsInt(),getAsDouble(),getAsLong(),getAsBigDecimal(),getAsNumber(),getAsFloat(),getAsShort(),getAsByte() から
+ * 選択して使用する。
+ *
  * Map への変換は toMap() 、検索実行は search() で、検索ハンドラの指定は addHandler() でチェーンで指定する。
  *
  * （検索の例）
@@ -54,31 +57,18 @@ import com.google.gson.JsonPrimitive;
  *         if (e.getValue() instanceof JsonArray){
  *             System.out.println("This is JsonArray ");
  *         }
- *
+ *         if (e.getValue() instanceof JsonPrimitive){
+ *             long l = ((JsonPrimitive)o).getAsLong());
+ *         }
  *      });
- *   検索、Mapへ変換ともに、値が配列の場合、instanceof JsonArray で検査することができる
+ *   検索、Mapへ変換ともに、値が配列の場合、instanceof JsonArray や、JsonPrimitive で検査することができる
  *
  * </PRE>
  */
 public final class JsonGenericParser{
-	/** 数値解釈を指定する列挙変数.
-	 *  provide()メソッド引数で指定してインスタンス生成する
-	 *  デフォルトコンストラクタによるインスタンス生成では、INTEGER が使用される */
-	public enum NumberParse{
-		INTEGER ,
-		LONG ,
-		DOUBLE ,
-		BIGDECIMAL ,
-		NUMBER ,
-		SHORT ,
-		FLOAT ,
-		BYTE ,
-		CHARACTER
-	};
 	private NumberParse numberparse;
 	/** コンストラクタ.	 */
 	public JsonGenericParser(){
-		numberparse = NumberParse.INTEGER;
 	}
 	private JsonGenericParser(NumberParse numberParse){
 		numberparse = numberParse;
@@ -128,25 +118,28 @@ public final class JsonGenericParser{
 		}else if(je.isJsonPrimitive()){
 			JsonPrimitive p = je.getAsJsonPrimitive();
 			if (p.isNumber()){
-					map.put(key, p.getAsDouble());
-				if (numberparse.equals(NumberParse.INTEGER)){
-					map.put(key, p.getAsInt());
-				}else if(numberparse.equals(NumberParse.LONG)){
-					map.put(key, p.getAsLong());
-				}else if(numberparse.equals(NumberParse.DOUBLE)){
-					map.put(key, p.getAsDouble());
-				}else if(numberparse.equals(NumberParse.BIGDECIMAL)){
-					map.put(key, p.getAsBigDecimal());
-				}else if(numberparse.equals(NumberParse.NUMBER)){
-					map.put(key, p.getAsNumber());
-				}else if(numberparse.equals(NumberParse.SHORT)){
-					map.put(key, p.getAsShort());
-				}else if(numberparse.equals(NumberParse.FLOAT)){
-					map.put(key, p.getAsFloat());
-				}else if(numberparse.equals(NumberParse.BYTE)){
-					map.put(key, p.getAsByte());
-				}else if(numberparse.equals(NumberParse.CHARACTER)){
-					map.put(key, p.getAsCharacter());
+				if (numberparse==null){
+					map.put(key, p);
+				}else {
+					if (numberparse.equals(NumberParse.INTEGER)){
+						map.put(key, p.getAsInt());
+					}else if(numberparse.equals(NumberParse.LONG)){
+						map.put(key, p.getAsLong());
+					}else if(numberparse.equals(NumberParse.DOUBLE)){
+						map.put(key, p.getAsDouble());
+					}else if(numberparse.equals(NumberParse.BIGDECIMAL)){
+						map.put(key, p.getAsBigDecimal());
+					}else if(numberparse.equals(NumberParse.NUMBER)){
+						map.put(key, p.getAsNumber());
+					}else if(numberparse.equals(NumberParse.SHORT)){
+						map.put(key, p.getAsShort());
+					}else if(numberparse.equals(NumberParse.FLOAT)){
+						map.put(key, p.getAsFloat());
+					}else if(numberparse.equals(NumberParse.BYTE)){
+						map.put(key, p.getAsByte());
+					}else if(numberparse.equals(NumberParse.CHARACTER)){
+						map.put(key, p.getAsCharacter());
+					}
 				}
 			}else if(p.isString()){
 				map.put(key, p.getAsString());
@@ -220,33 +213,38 @@ public final class JsonGenericParser{
 		}else if(je.isJsonPrimitive()){
 			JsonPrimitive p = je.getAsJsonPrimitive();
 			if (p.isNumber()){
-				if (numberparse.equals(NumberParse.INTEGER)){
+				if (numberparse==null){
 					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsInt()));
-				}else if(numberparse.equals(NumberParse.LONG)){
-					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsLong()));
-				}else if(numberparse.equals(NumberParse.DOUBLE)){
-					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsDouble()));
-				}else if(numberparse.equals(NumberParse.BIGDECIMAL)){
-					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsBigDecimal()));
-				}else if(numberparse.equals(NumberParse.NUMBER)){
-					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsNumber()));
-				}else if(numberparse.equals(NumberParse.SHORT)){
-					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsShort()));
-				}else if(numberparse.equals(NumberParse.FLOAT)){
-					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsFloat()));
-				}else if(numberparse.equals(NumberParse.BYTE)){
-					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsByte()));
-				}else if(numberparse.equals(NumberParse.CHARACTER)){
-					hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
-					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsCharacter()));
+					.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p));
+				}else{
+					if (numberparse.equals(NumberParse.INTEGER)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsInt()));
+					}else if(numberparse.equals(NumberParse.LONG)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsLong()));
+					}else if(numberparse.equals(NumberParse.DOUBLE)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsDouble()));
+					}else if(numberparse.equals(NumberParse.BIGDECIMAL)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsBigDecimal()));
+					}else if(numberparse.equals(NumberParse.NUMBER)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsNumber()));
+					}else if(numberparse.equals(NumberParse.SHORT)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsShort()));
+					}else if(numberparse.equals(NumberParse.FLOAT)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsFloat()));
+					}else if(numberparse.equals(NumberParse.BYTE)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsByte()));
+					}else if(numberparse.equals(NumberParse.CHARACTER)){
+						hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
+						.findFirst().ifPresent(e->e.getValue().accept(e.getKey(), p.getAsCharacter()));
+					}
 				}
 			}else if(p.isString()){
 				hmap.entrySet().stream().filter(e->key.equals(e.getKey()))
