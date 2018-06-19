@@ -44,6 +44,7 @@ import com.google.gson.JsonParser;
  *     }).compute("a.b.num", reader);
  * </PRE>
  */
+@FunctionalInterface
 public interface JsonPathSearch extends Serializable{
 	void accept(Optional<JsonElement> je);
 
