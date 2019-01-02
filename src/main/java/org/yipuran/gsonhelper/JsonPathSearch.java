@@ -3,6 +3,8 @@ package org.yipuran.gsonhelper;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -42,6 +44,34 @@ import com.google.gson.JsonParser;
  *           });
  *        });
  *     }).compute("a.b.num", reader);
+ *
+ * Ver4.3 より、追加された default の compute メソッド
+ *     default void compute(List&lt;String&gt; keylist, JsonElement je)
+ *     default void compute(List&lt;String&gt; keylist, Reader reader)
+ *     default void compute(List&lt;String&gt; keylist, String jsonstring)
+ * では、JSON キーのパスを探索順のリスト指定する以下の実行をできるようになる。
+ *
+ *  try(InputStream in = new FileInputStream("test.json");
+ *       Reader reader = new InputStreamReader(in, "UTF-8")){
+ *     JsonElement je = new JsonParser().parse(reader);
+ *     JsonPathSearch js = JsonPathSearch.of(je->{
+ *       je->je.ifPresent(e->{
+ *           System.out.println( e.getAsInt() );
+ *       });
+ *     });
+ *     js.compute(Arrays.asList("a", "b", "c"), je);
+ *  }catch(IOException e){
+ *    e.printStackTrace();
+ *  }
+ *  または、
+ *     JsonPathSearch.of(je->{
+ *        je.ifPresent(e->{
+ *           e.getAsJsonArray().forEach(t->{
+ *              System.out.println( t.getAsInt() );
+ *           });
+ *        });
+ *     }).compute(Arrays.asList("a", "b", "num"), reader);
+ *
  * </PRE>
  */
 @FunctionalInterface
@@ -89,11 +119,57 @@ public interface JsonPathSearch extends Serializable{
 						je.getAsJsonObject().entrySet().iterator(), Spliterator.ORDERED ), false)
 					.filter(e->e.getKey().equals(sp[0])).findAny()
 					.flatMap(e->elementParse(e.getValue(), key.replaceFirst("^[\\w_]+\\.", "")));
-			}else{
-				return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-						je.getAsJsonObject().entrySet().iterator(), Spliterator.ORDERED ), false)
-					.filter(e->e.getKey().equals(sp[0])).findAny().map(e->e.getValue());
 			}
+			return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+					je.getAsJsonObject().entrySet().iterator(), Spliterator.ORDERED ), false)
+				.filter(e->e.getKey().equals(sp[0])).findAny().map(e->e.getValue());
+		}
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+				je.getAsJsonObject().entrySet().iterator(), Spliterator.ORDERED ), false)
+			.filter(e->e.getKey().equals(key)).findAny().map(e->e.getValue());
+	}
+
+	/**
+	 * JSON解析実行（Path key List for JsonElement指定）.
+	 * @param keylist JSONキー探索順に並べたリスト
+	 * @param je JsonElement
+	 */
+	default void compute(List<String> keylist, JsonElement je){
+		List<String> list = new ArrayList<String>();
+		list.addAll(keylist);
+		accept(elementParse(je, list));
+	}
+	/**
+	 * JSON解析実行（Path key List for java.io.Reader指定）.
+	 * @param keylist JSONキー探索順に並べたリスト
+	 * @param reader java.io.Reader
+	 */
+	default void compute(List<String> keylist, Reader reader){
+		List<String> list = new ArrayList<String>();
+		list.addAll(keylist);
+		accept(elementParse(new JsonParser().parse(reader), list));
+	}
+	/**
+	 * JSON解析実行（Path key List for JSON文字列）
+	 * @param keylist JSONキー探索順に並べたリスト
+	 * @param jsonstring JSON文字列
+	 */
+	default void compute(List<String> keylist, String jsonstring){
+		List<String> list = new ArrayList<String>();
+		list.addAll(keylist);
+		accept(elementParse(new JsonParser().parse(new StringReader(jsonstring==null ? "" : jsonstring)), list));
+	}
+
+	static Optional<JsonElement> elementParse(JsonElement je, List<String> keylist){
+		if (!je.isJsonObject()) return Optional.empty();
+		int size = keylist.size();
+		if (size==0) Optional.empty();
+		String key = keylist.remove(0);
+		if (size > 1){
+			return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+					je.getAsJsonObject().entrySet().iterator(), Spliterator.ORDERED ), false)
+				.filter(e->e.getKey().equals(key)).findAny()
+				.flatMap(e->elementParse(e.getValue(), keylist));
 		}
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
 				je.getAsJsonObject().entrySet().iterator(), Spliterator.ORDERED ), false)
