@@ -57,4 +57,19 @@ public class TestJsonPattern{
 			return bo.toString();
 		}
 	}
+	/*** for Java11 ***
+	public static Reader getRreader(Class<?> cls, String filename) throws IOException, URISyntaxException{
+		return new FileReader(
+			new File(ClassLoader.getSystemClassLoader().getResource(
+					cls.getPackageName().replaceAll("\\.", "/") + "/" + filename).toURI()
+			), StandardCharsets.UTF_8);
+	}
+	public static String readString(Class<?> cls, String filename) throws IOException, URISyntaxException{
+		try(InputStream in = new FileInputStream(new File(ClassLoader.getSystemClassLoader()
+			.getResource(cls.getPackageName().replaceAll("\\.", "/") + "/" + filename).toURI()));
+		){
+			return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+		}
+	}
+	******************/
 }
