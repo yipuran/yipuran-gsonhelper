@@ -8,7 +8,7 @@ import com.google.gson.FieldAttributes;
  * <PRE>
  * ＠Exclude を付与したフィールドをJSONシリアライズ対象外にする。
  *
- *     new GsonBuilder().addSerializationExclusionStrategy( new ExcludeWithAnotateStrategy() ).build();
+ *     new GsonBuilder().addSerializationExclusionStrategy( new ExcludeWithAnotateStrategy() ).create();
  *
  * ＠Expose の指定による excludeFieldsWithoutExposeAnnotation() と併用した場合、
  * ＠Exclude が優先されて＠Expose の効力はなくなる。

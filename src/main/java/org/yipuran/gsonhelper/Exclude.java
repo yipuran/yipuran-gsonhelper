@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * JSON作成対象のフィールドに付与して、付与したフィールドをJSONシリアライズ対象外にする。
  * 本アノテーションを有効にする為に、GsonBuilder の addSerializationExclusionStrategyで ExcludeWithAnotateStrategy インスタンスを
  * 指定する。
- *      new GsonBuilder().addSerializationExclusionStrategy( new ExcludeWithAnotateStrategy() ).build();
+ *      new GsonBuilder().addSerializationExclusionStrategy( new ExcludeWithAnotateStrategy() ).create();
  *
  * ＠Expose の指定による excludeFieldsWithoutExposeAnnotation() と併用した場合、
  * この 除外アノテーションの方が優先され、＠Expose の意味がなくなる。
