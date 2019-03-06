@@ -16,8 +16,15 @@ import com.google.gson.JsonSerializer;
  * Gson LocalTime Adapter.
  * <PRE>
  * Gson gson = new GsonBuilder()
- * .registerTypeAdapter(LocalTime.class, LocalTimeAdapter.create(()->DateTimeFormatter.ofPattern("hh:mm:ss a")))
+ * .registerTypeAdapter(LocalTime.class, LocalTimeAdapter.create(()-&gt;DateTimeFormatter.ofPattern("hh:mm:ss a")))
  * .create();
+ *
+ * または、
+ *
+ *  Gson gson = new GsonBuilder()
+ * .registerTypeAdapter(LocalTime.class, LocalTimeAdapter.of("hh:mm:ss a"))
+ * .create();
+ *
  * </PRE>
  */
 public interface LocalTimeAdapter extends JsonSerializer<LocalTime>, JsonDeserializer<LocalTime>{
@@ -36,6 +43,14 @@ public interface LocalTimeAdapter extends JsonSerializer<LocalTime>, JsonDeseria
 	 */
 	public static LocalTimeAdapter create(LocalTimeAdapter adapter){
 		return adapter;
+	}
+	/**
+	 * LocalDateTimeAdapter生成（Pattern文字列指定）.
+	 * @param pattern DateTimeFormatter に渡す日付パターン
+	 * @return LocalDateTimeAdapter
+	 */
+	public static LocalTimeAdapter of(String pattern){
+		return LocalTimeAdapter.create(()->DateTimeFormatter.ofPattern(pattern));
 	}
 	/**
 	 * JSONシリアライズ、デシリアライズにおける日付時刻書式を指定する。.
