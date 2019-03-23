@@ -73,15 +73,13 @@ public final class JSonValue{
 								return get(Arrays.stream(pary).skip(1).collect(Collectors.joining(".")), ja.get(i));
 							}
 							return ja.get(i);
-						}else{
-							return null;
 						}
-					}else{
-						if (pary.length > 1) {
-							return get(Arrays.stream(pary).skip(1).collect(Collectors.joining(".")), entry.getValue());
-						}
-						return entry.getValue();
+						return null;
 					}
+					if (pary.length > 1) {
+						return get(Arrays.stream(pary).skip(1).collect(Collectors.joining(".")), entry.getValue());
+					}
+					return entry.getValue();
 				}
 			}
 		}else if(je.isJsonPrimitive()){
