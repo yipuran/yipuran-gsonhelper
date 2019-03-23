@@ -38,11 +38,26 @@ public class GenericDeserializer<T> implements JsonDeserializer<T>{
 		this.supplier = supplier;
 		this.function = function;
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException{
 		T t = supplier.get();
 		if (!json.isJsonNull()){
-			t = function.apply(json.getAsJsonObject().entrySet().stream().filter(e->!e.getValue().isJsonNull()), t, context);
+			if (json.isJsonObject()){
+				t = function.apply(json.getAsJsonObject().entrySet().stream().filter(e->!e.getValue().isJsonNull()), t, context);
+			}else{
+				if (typeOfT.getTypeName().equals("java.lang.String")){
+					t = (T)json.getAsString();
+				}else if(typeOfT.getTypeName().equals("java.lang.Integer")){
+					t = (T)Integer.valueOf(json.getAsInt());
+				}else if(typeOfT.getTypeName().equals("java.lang.Double")){
+					t = (T)Double.valueOf(json.getAsDouble());
+				}else if(typeOfT.getTypeName().equals("java.lang.Boolean")){
+					t = (T)Boolean.valueOf(json.getAsBoolean());
+				}else{
+					t = (T)json.getAsString();
+				}
+			}
 		}
 		return t;
 	}
