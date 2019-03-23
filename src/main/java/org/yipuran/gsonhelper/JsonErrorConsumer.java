@@ -50,13 +50,13 @@ public interface JsonErrorConsumer{
 				return true;
 			}else if(cause instanceof MalformedJsonException){
 				String msg = cause.getMessage();
-				if (Pattern.compile("^Unterminated object at line [0-9]+ column [0-9]+ path .+$").matcher(msg).matches()){
+				if (Pattern.compile("^.+ at line [0-9]+ column [0-9]+ path .+$").matcher(msg).matches()){
 					Matcher matcher = Pattern.compile("[0-9]+").matcher(msg);
 					matcher.find();
 					int line = Integer.parseInt(matcher.group());
 					matcher.find();
 					int column = Integer.parseInt(matcher.group());
-					String path = msg.replaceFirst("Unterminated object at line [0-9]+ column [0-9]+ path ", "");
+					String path = msg.replaceFirst(".+ at line [0-9]+ column [0-9]+ path ", "");
 					accept(line, column, path);
 				}
 				return false;
