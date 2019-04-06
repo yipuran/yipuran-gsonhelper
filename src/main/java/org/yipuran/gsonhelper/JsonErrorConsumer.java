@@ -12,10 +12,11 @@ import com.google.gson.stream.MalformedJsonException;
  * JsonMalformed JSON書式エラー確認処理で関数型インターフェースとして指定する。
  * <PRE>
  * （使用例）
- * JsonMalformed jsonmalformed = JsonMalformed.of((l, c, p)->{
+ * JsonMalformed jsonmalformed = JsonMalformed.of((l, c, p, t)->{
  *       System.out.println("# line   = " + l );
  *       System.out.println("# column = " + c );
  *       System.out.println("# path   = " + p );
+ *       System.out.println("# detail = " + t );
  * }, u->{
  *       System.out.println("# unknown :" + u.getClass().getName() + " " + + u.getMessage());
  * });
@@ -39,8 +40,9 @@ public interface JsonErrorConsumer{
 	 * @param l エラー行番号
 	 * @param c エラーカラム位置
 	 * @param p JSONパス文字列
+	 * @param t JsonErrorType
 	 */
-	void accept(Integer l, Integer c, String p);
+	void accept(Integer l, Integer c, String p, JsonErrorType t);
 
 	default boolean parse(Throwable th, Consumer<Throwable> u){
 		if (th instanceof JsonSyntaxException){
@@ -57,7 +59,7 @@ public interface JsonErrorConsumer{
 					matcher.find();
 					int column = Integer.parseInt(matcher.group());
 					String path = msg.replaceFirst(".+ at line [0-9]+ column [0-9]+ path ", "");
-					accept(line, column, path);
+					accept(line, column, path,	JsonErrorType.parse(msg));
 				}
 				return false;
 			}else{
