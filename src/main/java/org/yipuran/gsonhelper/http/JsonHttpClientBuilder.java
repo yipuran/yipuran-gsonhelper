@@ -7,10 +7,19 @@ import com.google.gson.GsonBuilder;
 
 /**
  * JsonHttpClientを生成する。
+ * <PRE>
+ * （使用法）
+ * String path;  // 送信先URL
+ * GsonBuilder gsonbuilder = new Gsonbuilder().serializeNulls();
+ * JsonHttpClient client = JsonHttpClientBuilder.of(path, gsonbuilder).build();
+ * または、
+ * JsonHttpClient client = JsonHttpClientBuilder.of(path, gsonbuilder).setForceUtf8().build();
+ * </PRE>
  */
 public final class JsonHttpClientBuilder{
 	private URL url;
 	private GsonBuilder gsonbuilder;
+	private boolean forceUtf8 = false;
 
 	/**
 	 * コンストラクタ.
@@ -35,10 +44,17 @@ public final class JsonHttpClientBuilder{
 		return new JsonHttpClientBuilder(path, gsonbuilder);
 	}
 	/**
+	 * 生成されるJsonHttpClient の受信JSON出力を強制的にUTF-8変換して出力
+	 */
+	public JsonHttpClientBuilder setForceUtf8(){
+		this.forceUtf8 = true;
+		return this;
+	}
+	/**
 	 * JsonHttpClient生成
 	 * @return JsonHttpClient
 	 */
 	public JsonHttpClient build(){
-		return new JsonHttpClient(url, gsonbuilder);
+		return forceUtf8 ? new JsonHttpClientUtf8Impl(url, gsonbuilder) : new JsonHttpClientImpl(url, gsonbuilder);
 	}
 }
