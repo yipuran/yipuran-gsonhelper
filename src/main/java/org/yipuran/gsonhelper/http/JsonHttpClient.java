@@ -96,4 +96,9 @@ public interface JsonHttpClient{
 	 */
 	public void execute(Object object,BiConsumer<String, Map<String, List<String>>> headconsumer, BiConsumer<String, String> consumer);
 
+	/**
+	 * HTTPレスポンスコード取得.
+	 * @return HTTPレスポンスコード
+	 */
+	public int getHttpresponsecode();
 }

@@ -221,4 +221,10 @@ class JsonHttpClientImpl implements JsonHttpClient{
 		}
 	}
 
+	/* @see org.yipuran.gsonhelper.http.JsonHttpClient#getHttpresponsecode()
+	 */
+	@Override
+	public int getHttpresponsecode(){
+		return httpresponsecode;
+	}
 }
