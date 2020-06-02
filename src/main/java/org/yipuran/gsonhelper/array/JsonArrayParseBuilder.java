@@ -18,7 +18,7 @@ import com.google.gson.reflect.TypeToken;
  * .registerTypeAdapter(LocalDateTime.class, LocalDateTimeAdapter.of("yyyy/MM/dd HH:mm:ss"));
  *
  * JsonArrayParseBuilder.<Item>of(gsonbuilder, TypeToken.get(Item.class).getType())
- * .path("group", "itemlist").build()
+ * .path("group", "itemlist").create()
  * .execute(reader, t->{
  * 	// t=配列要素
  * });
@@ -75,7 +75,7 @@ public final class JsonArrayParseBuilder<T>{
 	 * JsonArrayReader生成
 	 * @return JsonArrayParser
 	 */
-	public JsonArrayParser<T> build() {
+	public JsonArrayParser<T> create() {
 		String ptn = "^\\$\\." + pathstream
 		.map(e->e.replaceAll("\\.", "\\."))
 		.map(e->e.replaceAll("\\[", "\\\\["))
