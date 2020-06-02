@@ -22,7 +22,7 @@ or [Wiki Page](../../wiki)
     <dependency>
         <groupId>org.yipuran.gsonhelper</groupId>
         <artifactId>yipuran-gsonhelper</artifactId>
-        <version>4.14</version>
+        <version>4.15</version>
     </dependency>
 </dependencies>
 ```

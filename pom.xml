@@ -2,7 +2,7 @@
 <modelVersion>4.0.0</modelVersion>
 <groupId>org.yipuran.gsonhelper</groupId>
 <artifactId>yipuran-gsonhelper</artifactId>
-<version>4.14</version>
+<version>4.15</version>
 
 <name>yipuran-gsonhelper</name>
 <url>https://github.com/yipuran/yipuran-gsonhelper</url>
