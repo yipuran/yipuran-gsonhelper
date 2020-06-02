@@ -100,7 +100,7 @@ public final class JsonArrayParser<T>{
 						reader.nextLong();
 					}else if(token.equals(JsonToken.BOOLEAN)){
 						reader.nextBoolean();
-					}else if(token.equals(JsonToken.BOOLEAN)){
+					}else if(token.equals(JsonToken.NULL)){
 						reader.nextNull();
 					}
 			}
