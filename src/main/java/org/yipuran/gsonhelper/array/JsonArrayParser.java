@@ -117,7 +117,7 @@ public final class JsonArrayParser<T>{
 					}else if(token.equals(JsonToken.STRING)){
 						reader.nextString();
 					}else if(token.equals(JsonToken.NUMBER)){
-						reader.nextLong();
+						reader.nextString();
 					}else if(token.equals(JsonToken.BOOLEAN)){
 						reader.nextBoolean();
 					}else if(token.equals(JsonToken.NULL)){
@@ -227,7 +227,9 @@ public final class JsonArrayParser<T>{
 								action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), reader.nextString()));
 								break;
 						case NUMBER:
-								action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), reader.nextString()));
+								double d = Double.valueOf(reader.nextString());
+								action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), d==(long)d
+										? Integer.MIN_VALUE <= (long)d && (long)d <= Integer.MAX_VALUE ? (int)d : (long)d : d));
 								break;
 						case BOOLEAN:
 								action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), reader.nextBoolean()));
