@@ -228,8 +228,15 @@ public final class JsonArrayParser<T>{
 								break;
 						case NUMBER:
 								double d = Double.valueOf(reader.nextString());
-								action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), d==(long)d
-										? Integer.MIN_VALUE <= (long)d && (long)d <= Integer.MAX_VALUE ? (int)d : (long)d : d));
+								if (d==(long)d) {
+									if (Integer.MIN_VALUE <= (long)d && (long)d <= Integer.MAX_VALUE) {
+										action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), (int)d));
+									}else {
+										action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), (long)d));
+									}
+								}else{
+									action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), d));
+								}
 								break;
 						case BOOLEAN:
 								action.accept(new AbstractMap.SimpleEntry<String, Object>(reader.getPath(), reader.nextBoolean()));
