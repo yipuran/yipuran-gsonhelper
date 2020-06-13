@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import org.yipuran.gsonhelper.LocalDateAdapter;
-import org.yipuran.gsonhelper.LocalDateTimeAdapter;
-import org.yipuran.gsonhelper.LocalTimeAdapter;
+import org.yipuran.gsonhelper.adapter.LocalDateAdapter;
+import org.yipuran.gsonhelper.adapter.LocalDateTimeAdapter;
+import org.yipuran.gsonhelper.adapter.LocalTimeAdapter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
