@@ -1,4 +1,4 @@
-package org.yipuran.gsonhelper;
+package org.yipuran.gsonhelper.adapter;
 
 import java.io.IOException;
 
@@ -23,6 +23,7 @@ public class NullStringToEmptyAdapterFactory implements TypeAdapterFactory{
 	/*
 	 * @see com.google.gson.TypeAdapterFactory#create(com.google.gson.Gson, com.google.gson.reflect.TypeToken)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type){
 		 Class<T> rawType = (Class<T>)type.getRawType();
