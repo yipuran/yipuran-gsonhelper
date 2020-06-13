@@ -2,6 +2,8 @@ package org.yipuran.gsonhelper.http;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gson.GsonBuilder;
 
@@ -16,7 +18,7 @@ public final class JsonHttpsClientBuilder{
 	private Integer proxy_port;
 	private GsonBuilder gsonbuilder;
 	private boolean forceUtf8 = false;
-
+	private Map<String, String> headerOptions;
 	/**
 	 * コンストラクタ.
 	 * @param path 送信先URLパス
@@ -24,6 +26,7 @@ public final class JsonHttpsClientBuilder{
 	 */
 	private JsonHttpsClientBuilder(String path, GsonBuilder gsonbuilder){
 		this.gsonbuilder = gsonbuilder;
+		headerOptions = new HashMap<>();
 		try{
 			url = new URL(path);
 		}catch(MalformedURLException e){
@@ -69,16 +72,26 @@ public final class JsonHttpsClientBuilder{
 		return this;
 	}
 	/**
+	 * Header property 追加.
+	 * @param name key
+	 * @param value value
+	 * @return HttpClientBuilder
+	 */
+	public JsonHttpsClientBuilder addHeaderProperty(String name, String value) {
+		headerOptions.put(name, value);
+		return this;
+	}
+	/**
 	 * JsonHttpClient生成 HTTPS用
 	 * @return JsonHttpClient
 	 */
 	public JsonHttpClient build(){
 		if (forceUtf8){
 			if (proxy_server != null) {
-				return new JsonHttpsClientUtf8Impl(url, proxy_server, proxy_user, proxy_passwd, proxy_port, gsonbuilder);
+				return new JsonHttpsClientUtf8Impl(url, proxy_server, proxy_user, proxy_passwd, proxy_port, gsonbuilder, headerOptions);
 			}
-			return new JsonHttpsClientUtf8Impl(url, gsonbuilder);
+			return new JsonHttpsClientUtf8Impl(url, gsonbuilder, headerOptions);
 		}
-		return proxy_server==null ? new JsonHttpsClientImpl(url, gsonbuilder) : new JsonHttpsClientImpl(url, proxy_server, proxy_user, proxy_passwd, proxy_port, gsonbuilder);
+		return proxy_server==null ? new JsonHttpsClientImpl(url, gsonbuilder, headerOptions) : new JsonHttpsClientImpl(url, proxy_server, proxy_user, proxy_passwd, proxy_port, gsonbuilder, headerOptions);
 	}
 }

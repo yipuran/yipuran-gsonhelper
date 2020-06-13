@@ -2,6 +2,8 @@ package org.yipuran.gsonhelper.http;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gson.GsonBuilder;
 
@@ -20,6 +22,7 @@ public final class JsonHttpClientBuilder{
 	private URL url;
 	private GsonBuilder gsonbuilder;
 	private boolean forceUtf8 = false;
+	private Map<String, String> headerOptions;
 
 	/**
 	 * コンストラクタ.
@@ -28,6 +31,7 @@ public final class JsonHttpClientBuilder{
 	 */
 	private JsonHttpClientBuilder(String path, GsonBuilder gsonbuilder){
 		this.gsonbuilder = gsonbuilder;
+		headerOptions = new HashMap<>();
 		try{
 			url = new URL(path);
 		}catch(MalformedURLException e){
@@ -51,10 +55,20 @@ public final class JsonHttpClientBuilder{
 		return this;
 	}
 	/**
+	 * Header property 追加.
+	 * @param name key
+	 * @param value value
+	 * @return HttpClientBuilder
+	 */
+	public JsonHttpClientBuilder addHeaderProperty(String name, String value) {
+		headerOptions.put(name, value);
+		return this;
+	}
+	/**
 	 * JsonHttpClient生成
 	 * @return JsonHttpClient
 	 */
 	public JsonHttpClient build(){
-		return forceUtf8 ? new JsonHttpClientUtf8Impl(url, gsonbuilder) : new JsonHttpClientImpl(url, gsonbuilder);
+		return forceUtf8 ? new JsonHttpClientUtf8Impl(url, gsonbuilder, headerOptions) : new JsonHttpClientImpl(url, gsonbuilder, headerOptions);
 	}
 }

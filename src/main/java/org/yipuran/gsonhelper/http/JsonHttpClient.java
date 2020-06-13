@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.google.gson.stream.JsonReader;
+
 /**
  * HTTP JSON クライアント.
  *  <PRE>
@@ -46,6 +48,14 @@ import java.util.function.Consumer;
  * }, (b, s)->{
  *    // b = 未整形JSON
  *    // s = 整形したJSON
+ * });
+ *
+ * // (5) JsonReader で受信
+ * int status = client.execute(object, (type, hmap)->{
+ * 	// type = Content-type
+ *    // hmap = HTTPヘッダマップ
+ * }, jr->{
+ *    // jr = JsonReaderN
  * });
  *
  * （注意）(2)～(4) は、送受信前に Gsonbuilderは、registerTypeAdapter で GenericMapDeserializer が登録されて、setPrettyPrinting() が実行される。
@@ -95,6 +105,15 @@ public interface JsonHttpClient{
 	 * @param consumer BiConsumer＜未整形JSON, 整形JSON＞
 	 */
 	public void execute(Object object,BiConsumer<String, Map<String, List<String>>> headconsumer, BiConsumer<String, String> consumer);
+
+	/**
+	 * JsonReader で受信
+	 * @param object JSONにして送信する対象
+	 * @param headconsumer Content-typeとHTTPヘッダ受信マップのBiConsumer
+	 * @param jsonreadconsumer JsonReader
+	 * @return HTTPステータス
+	 */
+	public int executeJsonread(Object object,BiConsumer<String, Map<String, List<String>>> headconsumer, Consumer<JsonReader> jsonreadconsumer);
 
 	/**
 	 * HTTPレスポンスコード取得.
