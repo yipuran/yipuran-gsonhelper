@@ -33,6 +33,7 @@ import com.google.gson.JsonSerializer;
 public class MapSerializer implements JsonSerializer<Map<String, Object>>{
 
 	/* @see com.google.gson.JsonSerializer#serialize(java.lang.Object, java.lang.reflect.Type, com.google.gson.JsonSerializationContext) */
+	@SuppressWarnings("unchecked")
 	@Override
 	public JsonElement serialize(Map<String, Object> map, Type typeOfSrc, JsonSerializationContext context){
 		JsonObject jsonObject = new JsonObject();
