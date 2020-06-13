@@ -22,7 +22,20 @@ or [Wiki Page](../../wiki)
     <dependency>
         <groupId>org.yipuran.gsonhelper</groupId>
         <artifactId>yipuran-gsonhelper</artifactId>
-        <version>4.15</version>
+        <version>4.16</version>
     </dependency>
 </dependencies>
+```
+
+
+## Setup gradle
+```
+repositories {
+    mavebCentral()
+    maven { url 'https://raw.github.com/yipuran/yipuran-gsonhelper/mvn-repo'  }
+}
+
+dependencied {
+    compile 'org.yipuran.core:yipuran-gsonhelper:4.16'
+}
 ```
