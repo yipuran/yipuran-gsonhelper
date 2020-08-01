@@ -1,9 +1,12 @@
-package org.yipuran.gsonhelper;
+package org.yipuran.gsonhelper.serialize;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.yipuran.gsonhelper.NumberParse;
+
 import java.util.Set;
 
 import com.google.gson.JsonDeserializationContext;

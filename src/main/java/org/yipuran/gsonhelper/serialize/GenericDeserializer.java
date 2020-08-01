@@ -1,4 +1,4 @@
-package org.yipuran.gsonhelper;
+package org.yipuran.gsonhelper.serialize;
 
 import java.lang.reflect.Type;
 import java.util.Map.Entry;

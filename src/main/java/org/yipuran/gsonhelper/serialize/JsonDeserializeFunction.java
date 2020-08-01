@@ -1,4 +1,4 @@
-package org.yipuran.gsonhelper;
+package org.yipuran.gsonhelper.serialize;
 
 /**
  * JsonDeserializeFunction.

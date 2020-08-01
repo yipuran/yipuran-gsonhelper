@@ -21,7 +21,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
-import org.yipuran.gsonhelper.GenericMapDeserializer;
+import org.yipuran.gsonhelper.serialize.GenericMapDeserializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

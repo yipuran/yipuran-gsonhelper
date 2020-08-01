@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import org.yipuran.gsonhelper.GenericMapDeserializer;
+import org.yipuran.gsonhelper.serialize.GenericMapDeserializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
