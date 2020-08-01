@@ -96,7 +96,7 @@ public final class JsonGenericParser{
 	 */
 	public Map<String, Object> toMap(Reader reader){
 		Map<String, Object> map = new HashMap<String, Object>();
-		JsonElement je = new JsonParser().parse(reader);
+		JsonElement je = JsonParser.parseReader(reader);
 		if (je.isJsonObject()){
 			je.getAsJsonObject().entrySet().forEach(entry->	map.putAll(maped(entry.getKey(), entry.getValue(), map)));
 		}
@@ -185,7 +185,7 @@ public final class JsonGenericParser{
 	 * @param reader reader 解析対象のJSON読込み Reader
 	 */
 	public void search(Reader reader){
-		JsonElement je = new JsonParser().parse(reader);
+		JsonElement je = JsonParser.parseReader(reader);
 		System.out.println(je.isJsonObject());
 		JsonObject jo = je.getAsJsonObject();
 		for(Map.Entry<String, JsonElement> entry : jo.entrySet()){

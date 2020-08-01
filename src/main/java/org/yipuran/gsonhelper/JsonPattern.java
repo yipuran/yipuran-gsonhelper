@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
@@ -56,7 +57,7 @@ import com.google.gson.JsonPrimitive;
  *        JsonType.NUMBER   →  0
  *        JsonType.BOOLEAN  →  false
  *        JsonType.ARRAY    →  []  空の 配列、但し中身がある場合は展開生成される
- *        JsonType.OBJET    →  {}  空の Object、但し中身がある場合は展開生成される
+ *        JsonType.OBJECT   →  {}  空の Object、但し中身がある場合は展開生成される
  *        JsonType.NULL     →  null
  * 生成されるJSON文字列は。Google gson の setPrettyPrinting() で整形した文字列である。
  *
@@ -64,7 +65,7 @@ import com.google.gson.JsonPrimitive;
  * JsonPattern インスタンスを返す setメソッドで変更することができる。
  * → setDefaultBoolean(boolean), setDefaultString(String), setDefaultNumber(Number) メソッド
  * をチェイン（連結）して使用する。
- *        （例）JsonType.BOOLEAN に対して、<b>true</b> 値、
+ *        （例）JsonType.BOOLEAN に対して、true 値、
  *              JsonType.NUMBER  に対して、2.75 （小数点）
  *              JsonType.STRING  に対して、"_"
  *          で、format() で JSON文字列を生成する場合、、
@@ -73,12 +74,32 @@ import com.google.gson.JsonPrimitive;
  *                               .setsetDefaultNumber(2.75)
  *                               .setDefaultString("_");
  *          String sample = pattern.format();
+ *
+ * // 省略可能指定バリデーションチェック
+ * 通常、書式JSON で記述した JSON キー（path）は必須でバリデーションチェックされるが、
+ * 書式JSON で記述していても省略可能とする場合は、
+ * JsonPattern インスタンスに、addOptional メソッドで追加する。
+ *     JsonPattern pattern = new JsonPattern(reader).addOptional("e:e2");
+ *
+ * // 正規表現バリデーションチェック
+ * JSON キー（path）と正規表現を、JsonPattern インスタンスに、addRegExpress メソッドで追加する。
+ *     JsonPattern pattern = new JsonPattern(reader).addRegExpress("a:b:c", "^[a-z]+$");
+ *
+ * // 最小値と最大値のバリデーションチェック
+ * JSON キー（path）と最小値 or 最大値を、JsonPattern インスタンスに、addMinValue or addMaxValue メソッドで追加する。
+ *      JsonPattern pattern = new JsonPattern(reader).addMinValue("a:p", 1).addMaxValue("a:p", 10);
+ *
+ *
  * </PRE>
  */
 public final class JsonPattern{
 	private Map<String, JsonType> vmap;
 	private Map<String, Boolean> cmap;  // true:OK
 	private Map<String, JsonType> ignoremap;
+	private Map<String, Boolean> optionalmap;
+	private Map<String, Pattern> regexmap;
+	private Map<String, Double> minimap;
+	private Map<String, Double> maxmap;
 	private JsonElement readelement;
 
 	/**
@@ -96,7 +117,11 @@ public final class JsonPattern{
 		vmap = new HashMap<>();
 		cmap = new HashMap<>();
 		ignoremap = new HashMap<>();
-		readelement = new JsonParser().parse(reader);
+		optionalmap = new HashMap<>();
+		regexmap = new HashMap<>();
+		minimap = new HashMap<>();
+		maxmap = new HashMap<>();
+		readelement = JsonParser.parseReader(reader);
 		scan_format(null, readelement);
 	}
 
@@ -115,11 +140,13 @@ public final class JsonPattern{
 			if (element.isJsonNull()){
 				vmap.put(key, JsonType.NULL);
 				cmap.put(key, false);
+				optionalmap.put(key, false);
 				continue;
 			}
 			if (element.isJsonArray()){
 				vmap.put(key, JsonType.ARRAY);
 				cmap.put(key, false);
+				optionalmap.put(key, false);
 				element.getAsJsonArray().forEach(e->{
 					if (e.isJsonObject()) scan_format(key, e);
 				});
@@ -127,6 +154,7 @@ public final class JsonPattern{
 				if (element.isJsonPrimitive()){
 					vmap.put(key, primitiveType(element.getAsJsonPrimitive()));
 					cmap.put(key, false);
+					optionalmap.put(key, false);
 				}else{
 					scan_format(key, element);
 				}
@@ -160,9 +188,9 @@ public final class JsonPattern{
 	 */
 	public boolean validate(Reader reader){
 		ignoremap.clear();
-		vmap.keySet().stream().forEachOrdered(key->cmap.put(key, false));
+		vmap.keySet().stream().forEachOrdered(key->cmap.put(key, optionalmap.get(key) ? true : false));
 		try{
-			JsonElement je = new JsonParser().parse(reader);
+			JsonElement je = JsonParser.parseReader(reader);
 			scan_validate(null, je);
 			return cmap.values().stream().anyMatch(e->e.booleanValue()==false);
 		}catch(Exception ex){
@@ -212,6 +240,18 @@ public final class JsonPattern{
 						ignoremap.put(key, etype);
 					}else	if(type.equals(etype)){
 						cmap.put(key, true);
+					}
+					if (JsonType.STRING.equals(primitiveType(element.getAsJsonPrimitive()))){
+						if (regexmap.containsKey(key)) {
+							cmap.put(key, regexmap.get(key).matcher(element.getAsString()).matches());
+						}
+					}else if(JsonType.NUMBER.equals(primitiveType(element.getAsJsonPrimitive()))){
+						if (minimap.containsKey(key)) {
+							if (minimap.get(key) > element.getAsDouble()) cmap.put(key, false);
+						}
+						if (maxmap.containsKey(key)) {
+							if (maxmap.get(key) < element.getAsDouble()) cmap.put(key, false);
+						}
 					}
 				}else{
 					cmap.put(key, true);
@@ -352,5 +392,62 @@ public final class JsonPattern{
 			}
 		}
 		return job;
+	}
+	/**
+	 * 省略可能を指定
+	 * @param pathes JSONパスを ":" 区切りで指定
+	 * @return JsonPattern
+	 */
+	public JsonPattern addOptional(String...pathes) {
+		for(String p:pathes) optionalmap.put(p, true);
+		return this;
+	}
+	/**
+	 * 省略可能を指定
+	 * @param pathlist 省略可能を指定JSONパスを ":" 区切りをリストで指定
+	 * @return
+	 */
+	public JsonPattern addOptional(List<String> pathlist) {
+		for(String p:pathlist) optionalmap.put(p, true);
+		return this;
+	}
+	/**
+	 * 正規表現チェック追加
+	 * @param key JSONパスを ":" 区切り
+	 * @param regex 正規表現
+	 * @return JsonPattern
+	 */
+	public JsonPattern addRegExpress(String key, String regex) {
+		regexmap.put(key, Pattern.compile(regex));
+		return this;
+	}
+	/**
+	 * 正規表現チェック追加
+	 * @param map key=JSONパスを ":" 区切り、value=正規表現のMap
+	 * @return JsonPattern
+	 */
+	public JsonPattern addRegExpress(Map<String, String> map) {
+		map.entrySet().stream().forEach(e->regexmap.put(e.getKey(), Pattern.compile(e.getValue())));
+		return this;
+	}
+	/**
+	 * 最小値チェック追加
+	 * @param key key=JSONパスを ":" 区切り
+	 * @param n 最小値
+	 * @return JsonPattern
+	 */
+	public JsonPattern addMinValue(String key, Number n) {
+		minimap.put(key, n.doubleValue());
+		return this;
+	}
+	/**
+	 * 最大値チェック追加
+	 * @param key key=JSONパスを ":" 区切り
+	 * @param n 最大値
+	 * @return JsonPattern
+	 */
+	public JsonPattern addMaxValue(String key, Number n) {
+		maxmap.put(key, n.doubleValue());
+		return this;
 	}
 }

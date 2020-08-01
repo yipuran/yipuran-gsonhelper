@@ -100,7 +100,7 @@ public interface JsonPathSearch extends Serializable{
 	 * @param reader java.io.Reader
 	 */
 	default void compute(String key, Reader reader){
-		accept(elementParse(new JsonParser().parse(reader), key));
+		accept(elementParse(JsonParser.parseReader(reader), key));
 	}
 	/**
 	 * JSON解析実行（JSON文字列指定）.
@@ -108,7 +108,7 @@ public interface JsonPathSearch extends Serializable{
 	 * @param jsonstring JSON文字列
 	 */
 	default void compute(String key, String jsonstring){
-		accept(elementParse(new JsonParser().parse(new StringReader(jsonstring==null ? "" : jsonstring)), key));
+		accept(elementParse(JsonParser.parseReader(new StringReader(jsonstring==null ? "" : jsonstring)), key));
 	}
 	static Optional<JsonElement> elementParse(JsonElement je, String key){
 		if (!je.isJsonObject()) return Optional.empty();
@@ -147,7 +147,7 @@ public interface JsonPathSearch extends Serializable{
 	default void compute(List<String> keylist, Reader reader){
 		List<String> list = new ArrayList<String>();
 		list.addAll(keylist);
-		accept(elementParse(new JsonParser().parse(reader), list));
+		accept(elementParse(JsonParser.parseReader(reader), list));
 	}
 	/**
 	 * JSON解析実行（Path key List for JSON文字列）
@@ -157,7 +157,7 @@ public interface JsonPathSearch extends Serializable{
 	default void compute(List<String> keylist, String jsonstring){
 		List<String> list = new ArrayList<String>();
 		list.addAll(keylist);
-		accept(elementParse(new JsonParser().parse(new StringReader(jsonstring==null ? "" : jsonstring)), list));
+		accept(elementParse(JsonParser.parseReader(new StringReader(jsonstring==null ? "" : jsonstring)), list));
 	}
 
 	static Optional<JsonElement> elementParse(JsonElement je, List<String> keylist){

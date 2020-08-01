@@ -55,7 +55,7 @@ public final class JSonValue{
 	public JsonElement get(String path){
 		if (path==null) return null;
 		if (path.replaceAll(" ", "").length()==0) return null;
-		return get(path, new JsonParser().parse(reader));
+		return get(path, JsonParser.parseReader(reader));
 	}
 	private JsonElement get(String path, JsonElement je){
 		String[] pary = path.split("\\.");
