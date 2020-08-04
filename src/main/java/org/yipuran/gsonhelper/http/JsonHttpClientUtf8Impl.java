@@ -27,16 +27,18 @@ class JsonHttpClientUtf8Impl implements JsonHttpClient{
 	private GsonBuilder gsonbuilder;
 	private int httpresponsecode;
 	private Map<String, String> headerOptions;
+	private String method;
 
 	/**
 	 * コンストラクタ.
 	 * @param url URL
 	 * @param gsonbuilder GsonBuilder
 	 */
-	protected JsonHttpClientUtf8Impl(URL url, GsonBuilder gsonbuilder, Map<String, String> headerOptions){
+	protected JsonHttpClientUtf8Impl(URL url, GsonBuilder gsonbuilder, Map<String, String> headerOptions, String method){
 		this.url = url;
 		this.gsonbuilder = gsonbuilder;
 		this.headerOptions = headerOptions;
+		this.method = method;
 	}
 
 	/**
@@ -53,18 +55,20 @@ class JsonHttpClientUtf8Impl implements JsonHttpClient{
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection();
 			uc.setDoOutput(true);
 			uc.setReadTimeout(0);
-			uc.setRequestMethod("POST");
+			uc.setRequestMethod(method);
 			uc.setRequestProperty("Content-Type", "application/json");
-			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes("utf8").length));
+			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes(StandardCharsets.UTF_8).length));
 			if (headerOptions.size() > 0) {
 				headerOptions.entrySet().stream().forEach(e->{
 					uc.setRequestProperty(e.getKey(), e.getValue());
 				});
 			}
 			uc.connect();
-			OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), "utf8");
-			osw.write(jsonstr);
-			osw.flush();
+			if (method.equals("POST")) {
+				OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), StandardCharsets.UTF_8);
+				osw.write(jsonstr);
+				osw.flush();
+			}
 			httpresponsecode = uc.getResponseCode();
 			if (httpresponsecode != 200){
 				throw new RuntimeException("HTTP response " + httpresponsecode);
@@ -103,18 +107,20 @@ class JsonHttpClientUtf8Impl implements JsonHttpClient{
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection();
 			uc.setDoOutput(true);
 			uc.setReadTimeout(0);
-			uc.setRequestMethod("POST");
+			uc.setRequestMethod(method);
 			uc.setRequestProperty("Content-Type", "application/json");
-			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes("utf8").length));
+			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes(StandardCharsets.UTF_8).length));
 			if (headerOptions.size() > 0) {
 				headerOptions.entrySet().stream().forEach(e->{
 					uc.setRequestProperty(e.getKey(), e.getValue());
 				});
 			}
 			uc.connect();
-			OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), "utf8");
-			osw.write(jsonstr);
-			osw.flush();
+			if (method.equals("POST")) {
+				OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), StandardCharsets.UTF_8);
+				osw.write(jsonstr);
+				osw.flush();
+			}
 			httpresponsecode = uc.getResponseCode();
 			if (httpresponsecode != 200){
 				throw new RuntimeException("HTTP response " + httpresponsecode);
@@ -156,18 +162,20 @@ class JsonHttpClientUtf8Impl implements JsonHttpClient{
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection();
 			uc.setDoOutput(true);
 			uc.setReadTimeout(0);
-			uc.setRequestMethod("POST");
+			uc.setRequestMethod(method);
 			uc.setRequestProperty("Content-Type", "application/json");
-			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes("utf8").length));
+			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes(StandardCharsets.UTF_8).length));
 			if (headerOptions.size() > 0) {
 				headerOptions.entrySet().stream().forEach(e->{
 					uc.setRequestProperty(e.getKey(), e.getValue());
 				});
 			}
 			uc.connect();
-			OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), "utf8");
-			osw.write(jsonstr);
-			osw.flush();
+			if (method.equals("POST")) {
+				OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), StandardCharsets.UTF_8);
+				osw.write(jsonstr);
+				osw.flush();
+			}
 			httpresponsecode = uc.getResponseCode();
 			if (httpresponsecode != 200){
 				throw new RuntimeException("HTTP response " + httpresponsecode);
@@ -209,18 +217,20 @@ class JsonHttpClientUtf8Impl implements JsonHttpClient{
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection();
 			uc.setDoOutput(true);
 			uc.setReadTimeout(0);
-			uc.setRequestMethod("POST");
+			uc.setRequestMethod(method);
 			uc.setRequestProperty("Content-Type", "application/json");
-			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes("utf8").length));
+			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes(StandardCharsets.UTF_8).length));
 			if (headerOptions.size() > 0) {
 				headerOptions.entrySet().stream().forEach(e->{
 					uc.setRequestProperty(e.getKey(), e.getValue());
 				});
 			}
 			uc.connect();
-			OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), "utf8");
-			osw.write(jsonstr);
-			osw.flush();
+			if (method.equals("POST")) {
+				OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), StandardCharsets.UTF_8);
+				osw.write(jsonstr);
+				osw.flush();
+			}
 			httpresponsecode = uc.getResponseCode();
 			if (httpresponsecode != 200){
 				throw new RuntimeException("HTTP response " + httpresponsecode);
@@ -267,18 +277,20 @@ class JsonHttpClientUtf8Impl implements JsonHttpClient{
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection();
 			uc.setDoOutput(true);
 			uc.setReadTimeout(0);
-			uc.setRequestMethod("POST");
+			uc.setRequestMethod(method);
 			uc.setRequestProperty("Content-Type", "application/json");
-			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes("utf8").length));
+			uc.setRequestProperty("Content-Length", Integer.toString(jsonstr.getBytes(StandardCharsets.UTF_8).length));
 			if (headerOptions.size() > 0) {
 				headerOptions.entrySet().stream().forEach(e->{
 					uc.setRequestProperty(e.getKey(), e.getValue());
 				});
 			}
 			uc.connect();
-			OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), "utf8");
-			osw.write(jsonstr);
-			osw.flush();
+			if (method.equals("POST")) {
+				OutputStreamWriter osw = new OutputStreamWriter(uc.getOutputStream(), StandardCharsets.UTF_8);
+				osw.write(jsonstr);
+				osw.flush();
+			}
 			status = uc.getResponseCode();
 			if (httpresponsecode != 200){
 				throw new RuntimeException("HTTP response " + httpresponsecode);

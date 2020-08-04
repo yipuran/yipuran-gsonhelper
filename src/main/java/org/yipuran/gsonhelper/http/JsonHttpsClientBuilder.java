@@ -19,6 +19,7 @@ public final class JsonHttpsClientBuilder{
 	private GsonBuilder gsonbuilder;
 	private boolean forceUtf8 = false;
 	private Map<String, String> headerOptions;
+	private String method = "POST";
 	/**
 	 * コンストラクタ.
 	 * @param path 送信先URLパス
@@ -81,6 +82,10 @@ public final class JsonHttpsClientBuilder{
 		headerOptions.put(name, value);
 		return this;
 	}
+	public JsonHttpsClientBuilder setMethod(String method) {
+		this.method = method.toUpperCase();
+		return this;
+	}
 	/**
 	 * JsonHttpClient生成 HTTPS用
 	 * @return JsonHttpClient
@@ -88,10 +93,10 @@ public final class JsonHttpsClientBuilder{
 	public JsonHttpClient build(){
 		if (forceUtf8){
 			if (proxy_server != null) {
-				return new JsonHttpsClientUtf8Impl(url, proxy_server, proxy_user, proxy_passwd, proxy_port, gsonbuilder, headerOptions);
+				return new JsonHttpsClientUtf8Impl(url, proxy_server, proxy_user, proxy_passwd, proxy_port, gsonbuilder, headerOptions, method);
 			}
-			return new JsonHttpsClientUtf8Impl(url, gsonbuilder, headerOptions);
+			return new JsonHttpsClientUtf8Impl(url, gsonbuilder, headerOptions, method);
 		}
-		return proxy_server==null ? new JsonHttpsClientImpl(url, gsonbuilder, headerOptions) : new JsonHttpsClientImpl(url, proxy_server, proxy_user, proxy_passwd, proxy_port, gsonbuilder, headerOptions);
+		return proxy_server==null ? new JsonHttpsClientImpl(url, gsonbuilder, headerOptions, method) : new JsonHttpsClientImpl(url, proxy_server, proxy_user, proxy_passwd, proxy_port, gsonbuilder, headerOptions, method);
 	}
 }

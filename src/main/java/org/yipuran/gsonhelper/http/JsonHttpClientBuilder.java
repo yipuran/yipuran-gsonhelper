@@ -23,6 +23,7 @@ public final class JsonHttpClientBuilder{
 	private GsonBuilder gsonbuilder;
 	private boolean forceUtf8 = false;
 	private Map<String, String> headerOptions;
+	private String method = "POST";
 
 	/**
 	 * コンストラクタ.
@@ -64,11 +65,15 @@ public final class JsonHttpClientBuilder{
 		headerOptions.put(name, value);
 		return this;
 	}
+	public JsonHttpClientBuilder setMethod(String method) {
+		this.method = method.toUpperCase();
+		return this;
+	}
 	/**
 	 * JsonHttpClient生成
 	 * @return JsonHttpClient
 	 */
 	public JsonHttpClient build(){
-		return forceUtf8 ? new JsonHttpClientUtf8Impl(url, gsonbuilder, headerOptions) : new JsonHttpClientImpl(url, gsonbuilder, headerOptions);
+		return forceUtf8 ? new JsonHttpClientUtf8Impl(url, gsonbuilder, headerOptions, method) : new JsonHttpClientImpl(url, gsonbuilder, headerOptions, method);
 	}
 }
