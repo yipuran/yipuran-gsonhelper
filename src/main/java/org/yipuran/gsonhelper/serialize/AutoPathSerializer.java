@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
 
+import org.yipuran.gsonhelper.Exclude;
 import org.yipuran.gsonhelper.JsonPath;
 
 import com.google.gson.JsonElement;
@@ -39,6 +40,7 @@ public class AutoPathSerializer<T> implements JsonSerializer<T>{
 		jmap.put("$", jo);
 		Field[] fields = src.getClass().getDeclaredFields();
 		for(Field f:fields) {
+			if (f.getAnnotation(Exclude.class) != null) continue;
 			try{
 				f.setAccessible(true);
 				Object obj = f.get(src);
