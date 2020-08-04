@@ -89,7 +89,9 @@ import com.google.gson.JsonPrimitive;
  * JSON キー（path）と最小値 or 最大値を、JsonPattern インスタンスに、addMinValue or addMaxValue メソッドで追加する。
  *      JsonPattern pattern = new JsonPattern(reader).addMinValue("a:p", 1).addMaxValue("a:p", 10);
  *
- *
+ * // null を許可
+ * JSON キー（path）と最小値 or 最大値を、JsonPattern インスタンスに、addNullable メソッドで追加する。
+ *      JsonPattern pattern = new JsonPattern(reader).addNullable("d");
  * </PRE>
  */
 public final class JsonPattern{
@@ -100,6 +102,7 @@ public final class JsonPattern{
 	private Map<String, Pattern> regexmap;
 	private Map<String, Double> minimap;
 	private Map<String, Double> maxmap;
+	private Map<String, String> nullablemap;
 	private JsonElement readelement;
 
 	/**
@@ -121,6 +124,7 @@ public final class JsonPattern{
 		regexmap = new HashMap<>();
 		minimap = new HashMap<>();
 		maxmap = new HashMap<>();
+		nullablemap = new HashMap<>();
 		readelement = JsonParser.parseReader(reader);
 		scan_format(null, readelement);
 	}
@@ -213,7 +217,12 @@ public final class JsonPattern{
 			JsonElement element = entry.getValue();
 			JsonType type = vmap.get(key);
 			if (element.isJsonNull()){
+
 				if (type==null){
+					ignoremap.put(key, JsonType.NULL);
+					continue;
+				}
+				if (!nullablemap.containsKey(key)) {
 					ignoremap.put(key, JsonType.NULL);
 					continue;
 				}
@@ -448,6 +457,15 @@ public final class JsonPattern{
 	 */
 	public JsonPattern addMaxValue(String key, Number n) {
 		maxmap.put(key, n.doubleValue());
+		return this;
+	}
+	/**
+	 * Nullを許可を追加
+	 * @param key key=JSONパスを ":" 区切り
+	 * @return JsonPattern
+	 */
+	public JsonPattern addNullable(String key) {
+		nullablemap.put(key, key);
 		return this;
 	}
 }
