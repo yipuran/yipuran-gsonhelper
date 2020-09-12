@@ -31,7 +31,7 @@ or [Wiki Page](../../wiki)
 ## Setup gradle
 ```
 repositories {
-    mavebCentral()
+    mavenCentral()
     maven { url 'https://raw.github.com/yipuran/yipuran-gsonhelper/mvn-repo'  }
 }
 
