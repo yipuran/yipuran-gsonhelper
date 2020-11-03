@@ -60,7 +60,7 @@ public final class GenericMapDeserializer implements JsonDeserializer<Map<String
 				return prim.getAsString();
 			}else if(prim.isNumber()){
 				Number num = prim.getAsNumber();
-				if (Math.ceil(num.doubleValue())==num.longValue()){
+				if (Math.ceil(num.doubleValue())==num.longValue() && prim.getAsString().indexOf(".") < 0){
 					return num.longValue();
 				}
 				return num.doubleValue();
