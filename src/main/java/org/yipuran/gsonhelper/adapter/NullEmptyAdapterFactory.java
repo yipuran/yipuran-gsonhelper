@@ -42,9 +42,10 @@ import com.google.gson.stream.JsonWriter;
  * 　　　   .addTypeAdapter(TypeToken.get(Foo.class), new FooAdapter())
  * 　　　).create();
  * </PRE>
- * 
+ *
  */
 public class NullEmptyAdapterFactory implements TypeAdapterFactory{
+	@SuppressWarnings("rawtypes")
 	private Map<TypeToken, TypeAdapter> map;
 
 	/**
@@ -60,12 +61,13 @@ public class NullEmptyAdapterFactory implements TypeAdapterFactory{
 	 * @param a TypeAdapter
 	 * @return コンストラクタ生成後のTypeAdapter追加したインスタンス
 	 */
+	@SuppressWarnings("rawtypes")
 	public NullEmptyAdapterFactory addTypeAdapter(TypeToken typetoken, TypeAdapter a) {
 		map.put(typetoken, a);
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public TypeAdapter create(Gson gson, TypeToken type){
 		Class<?> rawType =  type.getRawType();

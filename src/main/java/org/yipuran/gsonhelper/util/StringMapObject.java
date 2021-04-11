@@ -82,6 +82,7 @@ public final class StringMapObject{
 	 * @param keys JSONパス配列
 	 * @return T
 	 */
+	@SuppressWarnings("rawtypes")
 	public <T> T search(String...keys){
 		Iterator<String> it = Arrays.asList(keys).iterator();
 		String key = it.next();
