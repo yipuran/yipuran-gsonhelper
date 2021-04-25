@@ -5,11 +5,20 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.google.gson.JsonArray;
@@ -19,18 +28,62 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 /**
- * JSON読込み key-value 抽出.
+ * JSON読込み key-value 抽出(日付時刻デシリアライズオプション).
  * <PRE>
  * JSONキーは、"."区切り、配列は添え字 [n] で表現、BiConsumer 実行または Streamを生成する
  * </PRE>
  * @since 4.23
  */
 public class JsonView{
+	private Map<String, DateHandle> dpMap;
 	/**
 	 * コンストラクタ.
 	 */
 	public JsonView(){
+		dpMap = new HashMap<>();
 	}
+	enum DateType{ DATE, DATETIME, TIME }
+	class DateHandle{
+		public DateType type;
+		public Pattern ptn;
+		public DateTimeFormatter formatter;
+		public DateHandle(DateType type, Pattern ptn, DateTimeFormatter formatter) {
+			this.type = type;
+			this.ptn = ptn;
+			this.formatter = formatter;
+		}
+	}
+	/**
+	 * LocalDateデシリアライザ登録.
+	 * @param ptn JSONパスのPatternを指定
+	 * @param formatter DateTimeFormatter
+	 * @return JsonView
+	 */
+	public JsonView addDateDeserilaize(Pattern ptn, DateTimeFormatter formatter) {
+		dpMap.put(ptn.pattern(), new DateHandle(DateType.DATE, ptn, formatter));
+		return this;
+	}
+	/**
+	 * LocalDateTimeデシリアライザ登録.
+	 * @param ptn JSONパスのPatternを指定
+	 * @param formatter DateTimeFormatter
+	 * @return JsonView
+	 */
+	public JsonView addDatetimeDeserilaize(Pattern ptn, DateTimeFormatter formatter) {
+		dpMap.put(ptn.pattern(), new DateHandle(DateType.DATETIME, ptn, formatter));
+		return this;
+	}
+	/**
+	 * LocalTimeデシリアライザ登録.
+	 * @param ptn JSONパスのPatternを指定
+	 * @param formatter DateTimeFormatter
+	 * @return JsonView
+	 */
+	public JsonView addTimeDeserilaize(Pattern ptn, DateTimeFormatter formatter) {
+		dpMap.put(ptn.pattern(), new DateHandle(DateType.TIME, ptn, formatter));
+		return this;
+	}
+
 	/**
 	 * JSON テキスト→ BiConsumer 実行
 	 * @param jsontxt
@@ -63,9 +116,13 @@ public class JsonView{
 			}
 		}else if(je.isJsonArray()){
 			JsonArray ary = je.getAsJsonArray();
-			int i = 0;
-			for(Iterator<JsonElement> it=ary.iterator();it.hasNext();i++){
-				parseElement(it.next(), parent + "[" + i + "]", biconsumer);
+			if (ary.size() > 0) {
+				int i = 0;
+				for(Iterator<JsonElement> it=ary.iterator();it.hasNext();i++){
+					parseElement(it.next(), parent + "[" + i + "]", biconsumer);
+				}
+			}else{
+				biconsumer.accept(parent.substring(1), new ArrayList<Object>());
 			}
 		}else if(je.isJsonNull()){
 			biconsumer.accept(parent.substring(1), null);
@@ -85,7 +142,26 @@ public class JsonView{
 			}else if(p.isBoolean()){
 				biconsumer.accept(path, p.getAsBoolean());
 			}else if(p.isString()){
-				biconsumer.accept(path, p.getAsString());
+				dpMap.values().stream().filter(e->e.ptn.matcher(path).find()).findFirst()
+				.<Runnable>map(e->()->{
+					try{
+						switch(e.type){
+							case DATE:
+								biconsumer.accept(path, LocalDate.parse(p.getAsString(), e.formatter));
+								break;
+							case DATETIME:
+								biconsumer.accept(path, LocalDateTime.parse(p.getAsString(), e.formatter));
+								break;
+							case TIME:
+								biconsumer.accept(path, LocalTime.parse(p.getAsString(), e.formatter));
+								break;
+						}
+					}catch(DateTimeParseException x){
+						biconsumer.accept(path, p.getAsString());
+					}
+				}).orElse(()->{
+					biconsumer.accept(path, p.getAsString());
+				}).run();
 			}
 		}
 	}
@@ -125,9 +201,16 @@ public class JsonView{
 			}
 		}else if(je.isJsonArray()){
 			JsonArray ary = je.getAsJsonArray();
-			int i = 0;
-			for(Iterator<JsonElement> it=ary.iterator();it.hasNext();i++){
-				parseElement(it.next(), parent + "[" + i + "]", biconsumer);
+			if (ary.size() > 0) {
+				int i = 0;
+				for(Iterator<JsonElement> it=ary.iterator();it.hasNext();i++){
+					parseElement(it.next(), parent + "[" + i + "]", biconsumer);
+				}
+			}else{
+				String path = parent.substring(1);
+				if (predicate.test(path)){
+					biconsumer.accept(path, new ArrayList<Object>());
+				}
 			}
 		}else if(je.isJsonNull()){
 			String path = parent.substring(1);
@@ -151,7 +234,26 @@ public class JsonView{
 				}else if(p.isBoolean()){
 					biconsumer.accept(path, p.getAsBoolean());
 				}else if(p.isString()){
-					biconsumer.accept(path, p.getAsString());
+					dpMap.values().stream().filter(e->e.ptn.matcher(path).find()).findFirst()
+					.<Runnable>map(e->()->{
+						try{
+							switch(e.type){
+								case DATE:
+									biconsumer.accept(path, LocalDate.parse(p.getAsString(), e.formatter));
+									break;
+								case DATETIME:
+									biconsumer.accept(path, LocalDateTime.parse(p.getAsString(), e.formatter));
+									break;
+								case TIME:
+									biconsumer.accept(path, LocalTime.parse(p.getAsString(), e.formatter));
+									break;
+							}
+						}catch(DateTimeParseException x){
+							biconsumer.accept(path, p.getAsString());
+						}
+					}).orElse(()->{
+						biconsumer.accept(path, p.getAsString());
+					}).run();
 				}
 			}
 		}
@@ -196,9 +298,13 @@ public class JsonView{
 			}
 		}else if(je.isJsonArray()){
 			JsonArray ary = je.getAsJsonArray();
-			int i = 0;
-			for(Iterator<JsonElement> it=ary.iterator();it.hasNext();i++){
-				parseElement(it.next(), parent + "[" + i + "]", builder);
+			if (ary.size() > 0) {
+				int i = 0;
+				for(Iterator<JsonElement> it=ary.iterator();it.hasNext();i++){
+					parseElement(it.next(), parent + "[" + i + "]", builder);
+				}
+			}else{
+				builder.add(new SimpleEntry<String, Object>(parent.substring(1), new ArrayList<Object>()));
 			}
 		}else if(je.isJsonNull()){
 			builder.add(new SimpleEntry<String, Object>(parent.substring(1), null));
@@ -218,7 +324,26 @@ public class JsonView{
 			}else if(p.isBoolean()){
 				builder.add(new SimpleEntry<String, Object>(path, p.getAsBoolean()));
 			}else if(p.isString()){
-				builder.add(new SimpleEntry<String, Object>(path, p.getAsString()));
+				dpMap.values().stream().filter(e->e.ptn.matcher(path).find()).findFirst()
+				.<Runnable>map(e->()->{
+					try{
+						switch(e.type){
+							case DATE:
+								builder.add(new SimpleEntry<String, Object>(path, LocalDate.parse(p.getAsString(), e.formatter)));
+								break;
+							case DATETIME:
+								builder.add(new SimpleEntry<String, Object>(path, LocalDateTime.parse(p.getAsString(), e.formatter)));
+								break;
+							case TIME:
+								builder.add(new SimpleEntry<String, Object>(path, LocalTime.parse(p.getAsString(), e.formatter)));
+								break;
+						}
+					}catch(DateTimeParseException x){
+						builder.add(new SimpleEntry<String, Object>(path, p.getAsString()));
+					}
+				}).orElse(()->{
+					builder.add(new SimpleEntry<String, Object>(path, p.getAsString()));
+				}).run();
 			}
 		}
 	}

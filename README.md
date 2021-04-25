@@ -22,7 +22,7 @@ or [Wiki Page](../../wiki)
     <dependency>
         <groupId>org.yipuran.gsonhelper</groupId>
         <artifactId>yipuran-gsonhelper</artifactId>
-        <version>4.23</version>
+        <version>4.24</version>
     </dependency>
 </dependencies>
 ```
@@ -36,6 +36,6 @@ repositories {
 }
 
 dependencied {
-    compile 'org.yipuran.core:yipuran-gsonhelper:4.23'
+    compile 'org.yipuran.core:yipuran-gsonhelper:4.24'
 }
 ```
